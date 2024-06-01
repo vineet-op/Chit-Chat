@@ -7,8 +7,10 @@ import {
   InputGroup,
   InputRightAddon,
   Button,
-  ButtonGroup,
+  useToast,
 } from "@chakra-ui/react";
+import { useHistory } from "react-router";
+import axios from "axios";
 
 const Signup = () => {
   const [show, setShow] = useState(false);
@@ -17,14 +19,121 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [confirmpassword, setConfirmpassword] = useState("");
   const [pic, setPic] = useState("");
+  const [loading, setLoading] = useState(false);
+  const history = useHistory();
+  const toast = useToast();
 
-  const HandleShow = () => {
+  const handleShow = () => {
     setShow(!show);
   };
 
-  const postDetails = (pic) => {};
+  const postDetails = (pics) => {
+    setLoading(true);
+    if (pics === undefined) {
+      toast({
+        title: "Please select an image",
+        status: "warning",
+        duration: 5000,
+        position: "bottom",
+      });
+      setLoading(false);
+      return;
+    }
+    if (pics.type === "image/jpeg" || pics.type === "image/png") {
+      const data = new FormData();
+      data.append("file", pics);
+      data.append("upload_preset", "Chat-App");
+      data.append("cloud_name", "dxkvuqewq");
+      fetch("https://api.cloudinary.com/v1_1/dxkvuqewq/image/upload", {
+        method: "post",
+        body: data,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setPic(data.url.toString());
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
+    } else {
+      toast({
+        title: "Please select an image",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+    }
+  };
 
-  const HandleSubmit = () => {};
+  const handleSubmit = async () => {
+    // Your submit logic here
+    setLoading(true);
+    if (!name || !email || !password || !confirmpassword) {
+      toast({
+        title: "Please enter the required fields",
+        status: "warning",
+        duration: 5000,
+        position: "bottom",
+        isClosable: true,
+      });
+      setLoading(false);
+      return;
+    }
+    if (password != confirmpassword) {
+      toast({
+        title: "Please do not match",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
+    console.log(name, password, email, pic);
+
+    try {
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+        },
+      };
+      const { data } = await axios.post(
+        "http://localhost:4000/api/user",
+        {
+          name,
+          email,
+          password,
+          pic,
+        },
+        config
+      );
+      console.log(data);
+      toast({
+        title: "Registration Successful",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      localStorage.setItem("userInfo", JSON.stringify(data));
+      setLoading(false);
+      history.push("/chats");
+    } catch (error) {
+      toast({
+        title: "Error Occured!",
+        description: error.response.data.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+    }
+  };
 
   return (
     <VStack spacing={"5px"} color={"black"}>
@@ -60,7 +169,7 @@ const Signup = () => {
             }}
           />
           <InputRightAddon width={"4.5rem"}>
-            <Button h="1.75rem" size={"md"} onClick={HandleShow}>
+            <Button h="1.75rem" size={"md"} onClick={handleShow}>
               {show ? "Hide" : "Show"}
             </Button>
           </InputRightAddon>
@@ -79,21 +188,21 @@ const Signup = () => {
             }}
           />
           <InputRightAddon width={"4.5rem"}>
-            <Button h="1.75rem" size={"md"} onClick={HandleShow}>
+            <Button h="1.75rem" size={"md"} onClick={handleShow}>
               {show ? "Hide" : "Show"}
             </Button>
           </InputRightAddon>
         </InputGroup>
       </FormControl>
 
-      <FormControl id="pic" isRequired>
+      <FormControl id="pic">
         <FormLabel>Upload Image</FormLabel>
         <Input
           type="file"
           p={1.5}
           accept="image/*"
           onChange={(e) => {
-            postDetails(e.target.value[0]);
+            postDetails(e.target.files[0]);
           }}
         />
       </FormControl>
@@ -103,7 +212,8 @@ const Signup = () => {
         color={"white"}
         width="100%"
         style={{ marginTop: 15 }}
-        onClick={HandleSubmit}
+        onClick={handleSubmit}
+        isLoading={loading}
       >
         Signup
       </Button>

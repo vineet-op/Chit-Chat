@@ -5,7 +5,9 @@ const cors = require("cors");
 const PORT = process.env.PORT || 4000;
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 const { notFound, errorHandler } = require("./middleWare/errorMiddleware");
+
 dotenv.config();
 
 connectDB();
@@ -18,7 +20,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/user", userRoutes);
-
+app.use("/api/chats", chatRoutes);
 // Error Handling middlewares
 app.use(notFound);
 app.use(errorHandler);

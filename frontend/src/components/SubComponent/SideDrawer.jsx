@@ -76,10 +76,11 @@ const SideDrawer = () => {
         `http://localhost:4000/api/user?search=${search}`,
         config
       );
-      // console.log(data);
-      if (!chats.find((c) => c._id == data._id)) setChats([data, ...chats]);
+      console.log(data);
+      // if (!chats.find((c) => c._id == data._id)) setChats([data, ...chats]);
       setSearchResult(data);
       setLoading(false);
+      setChats(data);
     } catch (error) {
       toast({
         title: "Error Occured",
@@ -106,7 +107,7 @@ const SideDrawer = () => {
         config
       );
 
-      if (chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
+      if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
       setSelectedChat(data);
       SetLoadingChat(false);
       onClose();

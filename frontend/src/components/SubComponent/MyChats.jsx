@@ -7,6 +7,7 @@ import { getSender } from "../config/ChatLogics";
 import ChatLoading from "./ChatLoading";
 import { Button } from "@chakra-ui/button";
 import { ChatState } from "../context/ChatProvider";
+import GroupChatModel from "./GroupChatModel";
 
 const MyChats = () => {
   const [loggedUser, setLoggedUser] = useState();
@@ -61,18 +62,20 @@ const MyChats = () => {
         fontSize={{ base: "28px", md: "30px" }}
         fontFamily="Work sans"
         display="flex"
-        w="100%"
+        w={"100%"}
         justifyContent="space-between"
         alignItems="center"
       >
         My Chats
-        <Button
-          display="flex"
-          fontSize={{ base: "17px", md: "10px", lg: "17px" }}
-          rightIcon={<AddIcon />}
-        >
-          New Group Chat
-        </Button>
+        <GroupChatModel>
+          <Button
+            display="flex"
+            fontSize={{ base: "17px", md: "10px", lg: "17px" }}
+            rightIcon={<AddIcon />}
+          >
+            New Group Chat
+          </Button>
+        </GroupChatModel>
       </Box>
       <Box
         display="flex"
@@ -105,6 +108,7 @@ const MyChats = () => {
                 borderRadius="lg"
                 key={chat._id}
               >
+                console.log(chats)
                 <Text key={chat._id}>
                   {!chat.isGroupChat
                     ? getSender(loggedUser, chat.users)

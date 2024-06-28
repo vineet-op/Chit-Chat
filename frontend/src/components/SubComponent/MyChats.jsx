@@ -9,7 +9,7 @@ import { Button } from "@chakra-ui/button";
 import { ChatState } from "../context/ChatProvider";
 import GroupChatModel from "./GroupChatModel";
 
-const MyChats = () => {
+const MyChats = ({ fetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState();
   const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
   const toast = useToast();
@@ -43,7 +43,7 @@ const MyChats = () => {
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
     fetchChats();
-  }, []);
+  }, [fetchAgain]);
 
   return (
     <Box
@@ -108,7 +108,6 @@ const MyChats = () => {
                 borderRadius="lg"
                 key={chat._id}
               >
-                console.log(chats)
                 <Text key={chat._id}>
                   {!chat.isGroupChat
                     ? getSender(loggedUser, chat.users)
